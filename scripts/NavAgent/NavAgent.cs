@@ -31,7 +31,10 @@ public class NavAgent : MonoBehaviour {
         foreach (NavAgentHandler navAgentin in navAgentHandler) {
             navAgentin.attach(this);
         }
-        OnNavAgentSpawn(this);
+        if (OnNavAgentSpawn != null)
+        {
+            OnNavAgentSpawn(this);
+        }
 	}
 
     void setTarget(Transform target)
@@ -43,7 +46,10 @@ public class NavAgent : MonoBehaviour {
     public void UpdateTarget(Transform target)
     {
         setTarget(target);
-        OnNavAgentDestUpdate(this, target);
+        if (OnNavAgentDestUpdate != null)
+        {
+            OnNavAgentDestUpdate(this, target);
+        }
 	}
 
 	void FixedUpdate()
@@ -54,10 +60,16 @@ public class NavAgent : MonoBehaviour {
 			{
                 if (!navagentSkel.hasPath || navagentSkel.velocity.sqrMagnitude == 0f)
                 {
-                    OnNavAgentArrive(this, navagentSkel.remainingDistance);
+                    if (OnNavAgentArrive != null)
+                    {
+                        OnNavAgentArrive(this, navagentSkel.remainingDistance);
+                    }
                 }
 			}
-            OnNavAgentMove(this, navagentSkel.remainingDistance);
+            if (OnNavAgentMove != null)
+            {
+                OnNavAgentMove(this, navagentSkel.remainingDistance);
+            }
 		}
 	}
 }

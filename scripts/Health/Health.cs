@@ -42,8 +42,11 @@ public class Health : MonoBehaviour {
             {
                 minimize();
             }
-            OnHealthDown(this);
-            if (isDead())
+            if (OnHealthDown != null)
+            {
+                OnHealthDown(this);
+            }
+            if (isDead() && (OnDeath != null))
             {
                 OnDeath(this);
             }
@@ -59,7 +62,10 @@ public class Health : MonoBehaviour {
             if (maxHealth >= (current + value))
             {
                 current = current + value;
-                OnHealthUp(this);
+                if (OnHealthUp != null)
+                {
+                    OnHealthUp(this);
+                }
             }
             else
             {
@@ -79,7 +85,7 @@ public class Health : MonoBehaviour {
         if (value >= 0)
         {
             current = value;
-            if (isDead())
+            if (isDead() && (OnDeath != null))
             {
                 OnDeath(this);
             }
