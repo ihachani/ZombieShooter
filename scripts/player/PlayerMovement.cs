@@ -20,12 +20,13 @@ public class PlayerMovement : MonoBehaviour {
 	Vector2[] lastPos = new Vector2[maxTouch];
 	float[] lastTime = new float[maxTouch];
 	float[] touchRange = { 33 + 220 * UiResAdapt.ratio, Screen.width - 33 - 220 * UiResAdapt.ratio, 17 + 220 * UiResAdapt.ratio };
+	int floorMask;
 	
 	// components
 	private Rigidbody playerRigidBody;
 	WeaponShoot shootingSystem ;
 	GameObject weaponGO;
-	
+
 	
 	void Awake () {
 		playerRigidBody = GetComponent<Rigidbody> ();
@@ -33,6 +34,7 @@ public class PlayerMovement : MonoBehaviour {
 		shootingSystem = weaponGO.GetComponent<WeaponShoot> ();
 		for (int t = 0; t < maxTouch; t++)
 			touchStates [t] = TOUCH_STATE.NONE;
+		floorMask = LayerMask.GetMask ("Quader");
 	}
 	
 	void Update () {
@@ -47,7 +49,7 @@ public class PlayerMovement : MonoBehaviour {
 		if (playerRigidBody != null) {
 			Vector3 movement = new Vector3(transform.position.x + movementFactor * x, transform.position.y, transform.position.z);
 			playerRigidBody.MovePosition(movement);
-			Debug.Log (transform.position.x + "  " + transform.position.y + "  " + transform.position.z);
+			//Debug.Log (transform.position.x + "  " + transform.position.y + "  " + transform.position.z);
 			
 		}
 	}
@@ -68,7 +70,7 @@ public class PlayerMovement : MonoBehaviour {
 						if( lastPos[i] != null ) {
 							if((Math.Abs (Input.GetTouch(i).position.x - lastPos[i].x) < tapRange * UiResAdapt.ratio) && touchStates[i] == TOUCH_STATE.NONE && isTouchInRange(i)) {
 								touchStates[i] = TOUCH_STATE.TAP;
-
+								Turn (Input.GetTouch(i));
 								ApplyAction(i);
 								touchStates[i] = TOUCH_STATE.NONE;
 							}
@@ -76,18 +78,33 @@ public class PlayerMovement : MonoBehaviour {
 					}
 				}
 				if(Input.GetTouch(i).phase == TouchPhase.Moved ) {
-					Debug.Log ("Mooooooooooooooooved");
 					if(Math.Abs (Input.GetTouch(i).position.x - lastPos[i].x) >= tapRange * UiResAdapt.ratio || Math.Abs (Input.GetTouch(i).position.y - lastPos[i].y) >= tapRange * UiResAdapt.ratio) {
 						touchStates[i] = TOUCH_STATE.SWIPING;
 					}
 				}
 				ApplyAction(i);
-				Debug.Log ("touch " + i + " : " + touchStates[i]);
 			}
 			
 		}
 		
 	}
+	void Turn(Touch touch) {
+		Vector3 touchPos;
+		touchPos.x = touch.position.x;
+		touchPos.y = touch.position.y;
+		touchPos.z = GameObject.Find ("Floor").transform.position.z;
+		Ray touchRay = Camera.main.ScreenPointToRay (touchPos);
+		Debug.Log (touch.position + "  touch pos  ");
+		RaycastHit touchHit;
+		if ( Physics.Raycast (touchRay, out touchHit, float.MaxValue, floorMask) ) {
+			double adj = Math.Abs (transform.position.z - GameObject.Find ("Floor").transform.position.z);
+			double angle = Math.Atan ((-transform.position.x + touchHit.point.x) / adj);
+			Quaternion target = Quaternion.Euler (transform.eulerAngles.x,(float)( angle * 180 / System.Math.PI), transform.eulerAngles.z);
+			transform.rotation = target;
+			Debug.Log ("opposee " + (touchHit.point.x - transform.position.x) + "   adj: " + adj + "  angle  " + target.eulerAngles.y);
+		}
+	}
+
 	void Turn(int i) {
 		if (Input.touchCount > 0 && Input.GetTouch (i).phase == TouchPhase.Moved && Input.GetTouch (i).phase != TouchPhase.Stationary) {
 			float ratio = Input.GetTouch (i).deltaPosition.x / Screen.width;

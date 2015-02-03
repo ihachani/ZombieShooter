@@ -65,8 +65,8 @@ public class WeaponShoot : MonoBehaviour {
 				{
 					enemyHealth.TakeDamage ((damagePerShot*2), shootHit.point);
 				}
-			}
-			gunLine.SetPosition (1, shootHit.point); */
+			} */
+			gunLine.SetPosition (1, shootHit.point);
 			Debug.Log("enemy shooted");
 		}
 		else
