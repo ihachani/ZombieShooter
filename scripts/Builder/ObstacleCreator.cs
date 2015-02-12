@@ -12,8 +12,6 @@ public class ObstacleCreator : MonoBehaviour {
     public float endRay = 13.5f;
     public float marginOffset = 12f;
 
-    public static float SCALE = 160f;
-
     void Awake () {
         for (float z = startRay; z <= endRay; z += rayOffset)
         {
