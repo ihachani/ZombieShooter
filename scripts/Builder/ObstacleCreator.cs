@@ -18,33 +18,22 @@ public class ObstacleCreator : MonoBehaviour {
             float e = (z / (endRay - startRay));
             float pos = obstaclesDistribution.Evaluate(e);
             float obstacles = Mathf.Round(maxObstacles * pos);
-            float left = -marginOffset, right = 0;
-            for (float j = 1f; j <= obstacles; j += 1)
+            float x = 0;
+            for (float j = 1f; j <= obstacles; j += 2)
             {
-                Vector3 positionVector = new Vector3(0, 0, z); ;
-                if (j % 2 == 0)
-                {
-                    positionVector.x = left;
-                    left -= marginOffset;
-                }
-                else
-                {
-                    positionVector.x = right;
-                    right += marginOffset;
-                }
-                createObstacle(positionVector);
-                //Debug.Log("instanciate obstacle at" + positionVector.x + "||" + positionVector.z);
+                createObstacle(new Vector3(x, 0, z));
+                if (x!=0)  createObstacle(new Vector3(-x, 0, z));
+                x += marginOffset;
             }
-        }
-        Debug.Log("end");
+        }        
 	}
 
     GameObject createObstacle(Vector3 position)
     {
-        int selection = (new System.Random()).Next(1, obstaclePrefab.Length) - 1;
+        int selection = (new System.Random()).Next(0, obstaclePrefab.Length);
         GameObject obstacle = Instantiate(obstaclePrefab[selection]) as GameObject;
         obstacle.transform.position = position;
-        obstacle.transform.parent = transform;
+        obstacle.transform.SetParent(transform, false);
         obstacle.layer = gameObject.layer;
         return obstacle;
     }
